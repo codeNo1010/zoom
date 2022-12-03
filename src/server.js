@@ -39,11 +39,19 @@ const wsServer = SocketIo(httpServer);
 
 // 여러개의 args를 socket.io 를 통해 전달 가능
 wsServer.on("connection", (socket) => {
+    socket.onAny((event) => {
+        console.log(`Socket Event: ${event}`);
+    });
     socket.on("enter_room", (roomName, done) => {
-        console.log(roomName);
-        setTimeout(() => {
-            done("hello from the backend");             //이거 실행 할때 프론트 엔드에서 실행되는 거임(backendDone 함수를 10초후 프론트에서 실행)
-        }, 3000);
+        //console.log(socket.id);     //소켓 ID가 찍히는데 아래의 socket.rooms값이랑 같음 (유저가 연결만되도 이미 방에 들어가있음)
+        //console.log(socket.rooms);
+        socket.join(roomName);
+        done();
+        socket.to(roomName).emit("welcome");    //welcome event를 roomName에 있는 모든 사람들에게 emit 한거
+        //console.log(socket.rooms);
+        //setTimeout(() => {
+        //    done("hello from the backend");             //이거 실행 할때 프론트 엔드에서 실행되는 거임(backendDone 함수를 10초후 프론트에서 실행)
+        //}, 3000);
     });
 });
 
