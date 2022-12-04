@@ -1,7 +1,9 @@
 import http from "http";
 //import WebSocket, {WebSocketServer} from "ws";
-import SocketIo from "socket.io";
+//import SocketIo from "socket.io";     밑에 instrument 때문에 소켓서버를 변경함(admin을 사용하기 위해)
+import {Server} from "socket.io";
 import express from "express";
+import { instrument } from "@socket.io/admin-ui";
 
 const app = express();
 
@@ -25,7 +27,17 @@ const httpServer = http.createServer(app);  //http 서버
 //2개가 같은 포트에 있길 원하기 때문에 이렇게 만들었지 꼭 이렇게 안해도됨
 
 //위의 WebSocketServer 대신 SocketIO 서버로 http 위에 만들어줌
-const wsServer = SocketIo(httpServer);
+//const wsServer = SocketIo(httpServer);
+const wsServer = new Server(httpServer, {   //소켓 admin 때문에 다시 변경해줌
+    cors: {
+        origin: ["https://admin.socket.io"],
+        credentials: true,
+    },
+});  
+//서버 어드민 추가설정      DOCS_URL : socket.io/docs/v4/admin-ui/
+instrument(wsServer, {
+    auth: false,
+});
 
 // done 콜백으로 사용함 10초후 app.js에서 실행됨
 // wsServer.on("connection", (socket) => {
@@ -37,9 +49,36 @@ const wsServer = SocketIo(httpServer);
 //     });
 // });
 
+
+function publicRooms() {
+    //const sids = wsServer.sockets.adapter.sids;   
+    //const rooms = wsServer.sockets.adapter.rooms;
+    //각종 정보를 소켓에서 가져오는 방법인데, 아래와 같이 리펙토링 한다. 위에가 첫번째 로직 아래가 2번째 로직
+    //const {sockets: {adapter: {sids, rooms}}} = wsServer;
+    //아래가 3번째 로직 (위의 2번째랑 똑같음))
+    const {
+        sockets: {
+            adapter: { sids, rooms },
+        },
+    } = wsServer;
+    const publicRooms = [];
+    rooms.forEach((_, key) => {
+        if (sids.get(key) === undefined) {
+            publicRooms.push(key);
+        }
+    });
+    return publicRooms;
+}
+
+function countRoom(roomName) {  //입장하거나 나갈때 호출할 방에 몇명인지 계산하는 함수
+    return wsServer.sockets.adapter.rooms.get(roomName)?.size;
+}
+
 // 여러개의 args를 socket.io 를 통해 전달 가능
 wsServer.on("connection", (socket) => {
+    socket["nickname"] = "Anonymous";
     socket.onAny((event) => {
+        //console.log(wsServer.sockets.adapter);    wsServer.sockets.adapter.sids or .rooms 모든정보 볼 수 있음 
         console.log(`Socket Event: ${event}`);
     });
     socket.on("enter_room", (roomName, done) => {
@@ -47,12 +86,28 @@ wsServer.on("connection", (socket) => {
         //console.log(socket.rooms);
         socket.join(roomName);
         done();
-        socket.to(roomName).emit("welcome");    //welcome event를 roomName에 있는 모든 사람들에게 emit 한거
+        socket.to(roomName).emit("welcome", socket.nickname, countRoom(roomName));    //welcome event를 roomName에 있는 모든 사람들에게 emit 한거
         //console.log(socket.rooms);
         //setTimeout(() => {
         //    done("hello from the backend");             //이거 실행 할때 프론트 엔드에서 실행되는 거임(backendDone 함수를 10초후 프론트에서 실행)
         //}, 3000);
+        //아래는 내가 ,혹은 누군가가 방에 입장한 이벤트가 발생했을 때, 소켓이 아닌 소켓서버를 통해 전체 공지 식으로 알린다. 
+        wsServer.sockets.emit("room_change", publicRooms());
+        
     });
+    socket.on("disconnecting", () => {
+       socket.rooms.forEach((room) => socket.to(room).emit("bye", socket.nickname, countRoom(room) -1));
+    });
+    socket.on("disconnect", () => {
+       wsServer.sockets.emit("room_change", publicRooms());
+    });
+
+    socket.on("new_message", (msg, room, done) => {
+        socket.to(room).emit("new_message", `${socket.nickname}: ${msg}`);
+        done(); //이건 프론트엔드에서 실행하는거임
+    });
+    socket.on("nickname", (nickname) => (socket["nickname"] = nickname));
+    
 });
 
 
