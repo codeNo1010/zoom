@@ -1,0 +1,25 @@
+
+NICO 노마드코더가 진행한 순서
+Nom init -y 
+Code . 
+폴더에서 하면됨
+프로젝트 셋팅후에 
+Sudo npm I nodemon -D
+Git init .
+Sudo npm I @babel/core @babel/cli @babel/node -D
+Sudo npm I @babel/preset-env -D
+
+Sudo npm I express
+Sudo npm I pug
+
+Npm run dev
+
+Sudo npm I socket.io
+http://localhost:3000/socket.io/socket.io.js
+(npm 설치후 소켓 io 기능 볼 수 있음), 백엔드에 npm설치, 프론트에도 설치해야됨
+
+소켓 admin 
+Sudo npm I @socket.io/admin-ui
+
+로컬터널 (모바일 -> 서버 접속 테스트) 일시적무료
+Sudo npm I localtunnel

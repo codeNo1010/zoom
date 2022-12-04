@@ -1,0 +1,21 @@
+doctype html
+html(lang="en")
+    head
+        meta(charset="UTF-8")
+        meta(http-equiv="X-UA-Compatible", content="IE=edge")
+        meta(name="viewport", content="width=device-width, initial-scale=1.0")
+        title Noom
+        <!-- mvp css 링크 추가 -->
+        link(rel="stylesheet" href="https://unpkg.com/mvp.css@1.12/mvp.css")
+    body
+        header
+            h1 Noom
+        main
+            //playsinline => 모바일 브라우저가 필요로 하는 property (모바일에서 전체 화면 방지)
+            video#myFace(autoplay, playsinline, width="400", height="400") 
+            button#mute Mute
+            button#camera Turn Camera Off
+            select#cameras
+                
+        script(src="/socket.io/socket.io.js")    
+        script(src="/public/js/app.js") 
