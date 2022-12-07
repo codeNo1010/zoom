@@ -23,7 +23,9 @@ app.use("/public", express.static(__dirname + "/public"));  //public URL 생성 
 
 //app route 설정 http
 app.get("/", (req, res) => res.render("home")); //home.pug를 렌더링 해주는 핸들러를 만들었음
-app.get("/*", (req, res) => res.redirect("/")); //url 이상하게 치면 무조건 홈으로 보내버림ㅋㅋ
+//아래 response TEST땜에 잠시 막아놓음 
+//app.get("/*", (req, res) => res.redirect("/")); //url 이상하게 치면 무조건 홈으로 보내버림ㅋㅋ
+
 //https
 app.get("/", (req, res) => {
     console.log("------ https get / -----" + (new Date()).toLocaleString());
@@ -35,6 +37,18 @@ app.get("/", (req, res) => {
     res.send("<h1>HTTPS Server running on port 3000</h1>");
     res.render("home")
 })
+
+// JSON TEST
+app.get("/user/:id", (req, res) => {
+    // const q = req.params
+    // console.log(q.id);
+    // res.json({'loginId' : q.id})
+    const q = req.query;
+    console.log(q);
+    res.json({'userid' : q.q, 'name' : q.name, 'age' : q.age});
+
+    //브라우저 테스트 https://localhost:3000/user/codeNo.1010?q=han&name=jung&age=20 이런식으로 
+});
 
 
 const httpServer = http.createServer(app);  //http 서버
