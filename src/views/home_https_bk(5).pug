@@ -4,36 +4,25 @@ html(lang="en")
         meta(charset="UTF-8")
         meta(http-equiv="X-UA-Compatible", content="IE=edge")
         meta(name="viewport", content="width=device-width, initial-scale=1.0")
-        title Cafe conference
+        title Noom
         <!-- mvp css 링크 추가 -->
         link(rel="stylesheet" href="https://unpkg.com/mvp.css@1.12/mvp.css")
     body
         header
-            h1 Cafe conference
+            h1 Noom
         main
             div#welcome
-                form#code
-                    input(placeholder="참여코드를 입력하세요.", required, type="text")
-                    button Enter Code
+                form
+                    input(placeholder="room name", required, type="text")
+                    button Enter Room
             div#call
                 div#myStream
                     //playsinline => 모바일 브라우저가 필요로 하는 property (모바일에서 전체 화면 방지)
-                    video#myFace(autoplay, playsinline, width="300", height="250") 
+                    video#myFace(autoplay, playsinline, width="400", height="400") 
                     button#mute Mute
                     button#camera Turn Camera Off
                     select#cameras
-                video#peerFace(autoplay, playsinline, width="300", height="250") 
+                video#peerFace(autoplay, playsinline, width="400", height="400") 
                 
-                ul 
-            div#room
-                h3 defaultRoomName
-                ul
-                form#name
-                    input(placeholder="nickname", required, type="text")
-                    button Save
-                form#msg
-                    input(placeholder="message", required, type="text")
-                    button Send    
-
         script(src="/socket.io/socket.io.js")    
         script(src="/public/js/app.js") 
