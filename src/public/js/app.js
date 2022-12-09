@@ -4,9 +4,10 @@ const muteBtn = document.getElementById("mute");
 const cameraBtn = document.getElementById("camera");
 const camerasSelect = document.getElementById("cameras");
 const call = document.getElementById("call");
+const room = document.getElementById("room");
 
 call.hidden = true; // 처음에 콜 부분은 숨어있을 예정, 방입장 후 호출
-
+room.hidden = true;
 
 let myStream;
 let muted = false;
@@ -225,6 +226,7 @@ socket.on("new_message", addMessage);
 //socket.on("room_change", (msg) => console.log(msg)); [1] 윗줄이랑 똑같음
 // [3] 재수정 입장시 room_change를 활용한 룸list 정보 갱신 
 socket.on("room_change", (rooms) => {
+    room.hidden = false;
     const roomList = welcome.querySelector("ul");
     roomList.innerHTML = "";
     if(rooms.length === 0) {
